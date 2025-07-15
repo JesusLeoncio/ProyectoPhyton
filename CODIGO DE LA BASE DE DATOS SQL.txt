@@ -1,0 +1,74 @@
+-- Crear la base de datos (si no existe)
+IF DB_ID('Tienda_Virtual_Don_Pepe') IS NULL
+    CREATE DATABASE Tienda_Virtual_Don_Pepe;
+GO
+
+USE Tienda_Virtual_Don_Pepe;
+GO
+
+-- =============================
+-- TABLA: Categorias
+-- =============================
+CREATE TABLE Categorias (
+    CategoriaID INT IDENTITY(1,1) NOT NULL,
+    Nombre VARCHAR(50) NOT NULL,
+    CONSTRAINT PK_Categorias PRIMARY KEY CLUSTERED (CategoriaID ASC),
+    CONSTRAINT UQ_Categorias_Nombre UNIQUE (Nombre)
+);
+GO
+
+-- =============================
+-- TABLA: Productos
+-- =============================
+CREATE TABLE Productos (
+    ProductoID INT IDENTITY(1,1) NOT NULL,
+    Nombre VARCHAR(50) NOT NULL,
+    Precio DECIMAL(10, 2) NOT NULL,
+    CategoriaID INT NOT NULL,
+    CONSTRAINT PK_Productos PRIMARY KEY CLUSTERED (ProductoID ASC),
+    CONSTRAINT FK_Productos_Categorias FOREIGN KEY (CategoriaID) REFERENCES Categorias(CategoriaID)
+);
+GO
+
+-- =============================
+-- TABLA: Compradores
+-- =============================
+CREATE TABLE Compradores (
+    CompradorID INT IDENTITY(1,1) NOT NULL,
+    NombreCompleto VARCHAR(100) NOT NULL,
+    Tarjeta CHAR(16) NOT NULL,
+    Clave CHAR(4) NOT NULL,
+    FechaCaducidad CHAR(5) NOT NULL,
+    CONSTRAINT PK_Compradores PRIMARY KEY CLUSTERED (CompradorID ASC)
+);
+GO
+
+-- =============================
+-- TABLA: Boletas
+-- =============================
+CREATE TABLE Boletas (
+    BoletaID INT IDENTITY(1,1) NOT NULL,
+    CompradorID INT NOT NULL,
+    FechaCompra DATETIME NULL DEFAULT(GETDATE()),
+    Total DECIMAL(10, 2) NOT NULL,
+    IGV DECIMAL(10, 2) NOT NULL,
+    CONSTRAINT PK_Boletas PRIMARY KEY CLUSTERED (BoletaID ASC),
+    CONSTRAINT FK_Boletas_Compradores FOREIGN KEY (CompradorID) REFERENCES Compradores(CompradorID)
+);
+GO
+
+-- =============================
+-- TABLA: DetalleBoleta
+-- =============================
+CREATE TABLE DetalleBoleta (
+    DetalleID INT IDENTITY(1,1) NOT NULL,
+    BoletaID INT NOT NULL,
+    ProductoID INT NOT NULL,
+    Cantidad INT NOT NULL,
+    PrecioUnitario DECIMAL(10, 2) NOT NULL,
+    Subtotal DECIMAL(10, 2) NOT NULL,
+    CONSTRAINT PK_DetalleBoleta PRIMARY KEY CLUSTERED (DetalleID ASC),
+    CONSTRAINT FK_DetalleBoleta_Boletas FOREIGN KEY (BoletaID) REFERENCES Boletas(BoletaID),
+    CONSTRAINT FK_DetalleBoleta_Productos FOREIGN KEY (ProductoID) REFERENCES Productos(ProductoID)
+);
+GO
